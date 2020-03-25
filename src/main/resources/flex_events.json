@@ -1,0 +1,176 @@
+{
+  "type": "bubble",
+  "header": {
+    "type": "box",
+    "layout": "vertical",
+    "contents": [
+      {
+        "type": "text",
+        "text": "Dicoding Events",
+        "weight": "bold"
+      }
+    ]
+  },
+  "hero": {
+    "type": "image",
+    "url": "%1$s",
+    "size": "full",
+    "aspectRatio": "1.51:1",
+    "aspectMode": "cover"
+  },
+  "body": {
+    "type": "box",
+    "layout": "vertical",
+    "contents": [
+      {
+        "type": "text",
+        "text": "%2$s",
+        "size": "md",
+        "color": "#c9302c",
+        "weight": "bold",
+        "wrap": true
+      },
+      {
+        "type": "text",
+        "text": "oleh: %3$s",
+        "size": "sm",
+        "color": "#c9302c"
+      },
+      {
+        "type": "text",
+        "text": "%4$s",
+        "size": "sm",
+        "wrap": true,
+        "margin": "lg"
+      },
+      {
+        "type": "box",
+        "layout": "horizontal",
+        "margin": "xl",
+        "contents": [
+          {
+            "type": "text",
+            "text": "Quota",
+            "size": "sm",
+            "color": "#aaaaaa",
+            "flex": 1
+          },
+          {
+            "type": "text",
+            "text": "%5$s Seat",
+            "size": "sm",
+            "color": "#666666",
+            "flex": 4
+          }
+        ]
+      },
+      {
+        "type": "box",
+        "layout": "horizontal",
+        "margin": "md",
+        "contents": [
+          {
+            "type": "text",
+            "text": "Begin",
+            "size": "sm",
+            "color": "#aaaaaa",
+            "flex": 1
+          },
+          {
+            "type": "text",
+            "text": "%6$s",
+            "size": "sm",
+            "color": "#666666",
+            "flex": 4
+          }
+        ]
+      },
+      {
+        "type": "box",
+        "layout": "horizontal",
+        "margin": "md",
+        "contents": [
+          {
+            "type": "text",
+            "text": "End",
+            "size": "sm",
+            "color": "#aaaaaa",
+            "flex": 1
+          },
+          {
+            "type": "text",
+            "text": "%7$s",
+            "size": "sm",
+            "color": "#666666",
+            "flex": 4
+          }
+        ]
+      },
+      {
+        "type": "box",
+        "layout": "horizontal",
+        "margin": "md",
+        "contents": [
+          {
+            "type": "text",
+            "text": "Loc",
+            "size": "sm",
+            "color": "#aaaaaa",
+            "flex": 1
+          },
+          {
+            "type": "text",
+            "text": "%8$s",
+            "size": "sm",
+            "color": "#666666",
+            "wrap": true,
+            "flex": 4
+          }
+        ]
+      },
+      {
+        "type": "box",
+        "layout": "horizontal",
+        "contents": [
+          {
+            "type": "filler"
+          },
+          {
+            "type": "text",
+            "text": "%9$s",
+            "size": "sm",
+            "color": "#666666",
+            "wrap": true,
+            "flex": 4
+          }
+        ]
+      }
+    ]
+  },
+  "footer": {
+    "type": "box",
+    "layout": "horizontal",
+    "spacing": "sm",
+    "contents": [
+      {
+        "type": "button",
+        "style": "secondary",
+        "action": {
+          "type": "uri",
+          "label": "Lihat",
+          "uri": "%10$s"
+        }
+      },
+      {
+        "type": "button",
+        "style": "primary",
+        "action": {
+          "type": "postback",
+          "label": "Join",
+          "data": "join event #%11$s",
+          "text": "join event #%11$s"
+        }
+      }
+    ]
+  }
+}
