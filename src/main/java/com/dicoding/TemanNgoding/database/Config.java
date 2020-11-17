@@ -1,4 +1,4 @@
-package com.dicoding.sampletemanngoding.database;
+package com.dicoding.TemanNgoding.database;
 
 import com.linecorp.bot.client.LineMessagingClient;
 import com.linecorp.bot.client.LineMessagingClientBuilder;
@@ -14,7 +14,8 @@ import javax.sql.DataSource;
 
 @Configuration
 @PropertySource("classpath:application.properties")
-public class Config {
+public class Config
+{
     @Autowired
     private Environment mEnv;
 

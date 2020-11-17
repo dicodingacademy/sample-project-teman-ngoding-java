@@ -1,7 +1,7 @@
-package com.dicoding.sampletemanngoding.database;
+package com.dicoding.TemanNgoding.database;
 
-import com.dicoding.sampletemanngoding.model.JointEvents;
-import com.dicoding.sampletemanngoding.model.User;
+import com.dicoding.TemanNgoding.model.JointEvents;
+import com.dicoding.TemanNgoding.model.User;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
@@ -12,7 +12,8 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Vector;
 
-public class DaoImpl implements Dao {
+public class DaoImpl implements Dao
+{
     //query untuk table user
     private final static String USER_TABLE="tbl_user";
     private final static String SQL_SELECT_ALL="SELECT id, user_id, line_id, display_name FROM "+USER_TABLE;

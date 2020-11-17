@@ -1,11 +1,10 @@
-package com.dicoding.sampletemanngoding.model;
+package com.dicoding.TemanNgoding.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-
 @JsonPropertyOrder({
         "id",
         "owner_id",
@@ -41,6 +40,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 })
 
 public class Datum {
+
     @JsonProperty("id")
     private int id;
     @JsonProperty("owner_id")

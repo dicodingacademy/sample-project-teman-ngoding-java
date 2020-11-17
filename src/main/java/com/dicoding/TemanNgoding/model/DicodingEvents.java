@@ -1,4 +1,4 @@
-package com.dicoding.sampletemanngoding.model;
+package com.dicoding.TemanNgoding.model;
 
 import java.util.List;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -10,8 +10,8 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
         "success",
         "data"
 })
-
 public class DicodingEvents {
+
     @JsonProperty("success")
     private boolean success;
     @JsonProperty("data")

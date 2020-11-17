@@ -1,6 +1,7 @@
-package com.dicoding.sampletemanngoding.model;
+package com.dicoding.TemanNgoding.model;
 
-public class User {
+public class User
+{
     public Long id;
     public String user_id;
     public String line_id;

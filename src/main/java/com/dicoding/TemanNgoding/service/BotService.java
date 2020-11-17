@@ -1,4 +1,4 @@
-package com.dicoding.sampletemanngoding.service;
+package com.dicoding.TemanNgoding.service;
 
 import com.linecorp.bot.client.LineMessagingClient;
 import com.linecorp.bot.model.Multicast;
@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class BotService {
+
     @Autowired
     private LineMessagingClient lineMessagingClient;
 

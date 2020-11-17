@@ -1,8 +1,9 @@
-package com.dicoding.sampletemanngoding.service;
+package com.dicoding.TemanNgoding.service;
 
-import com.dicoding.sampletemanngoding.database.Dao;
-import com.dicoding.sampletemanngoding.model.JointEvents;
-import com.dicoding.sampletemanngoding.model.User;
+import com.dicoding.TemanNgoding.model.JointEvents;
+import com.dicoding.TemanNgoding.database.Dao;
+import com.dicoding.TemanNgoding.model.JointEvents;
+import com.dicoding.TemanNgoding.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -10,6 +11,7 @@ import java.util.List;
 
 @Repository
 public class DBService {
+
     @Autowired
     private Dao mDao;
 

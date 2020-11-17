@@ -1,12 +1,12 @@
-package com.dicoding.sampletemanngoding.controller;
+package com.dicoding.TemanNgoding.controller;
 
-import com.dicoding.sampletemanngoding.model.Datum;
-import com.dicoding.sampletemanngoding.model.DicodingEvents;
-import com.dicoding.sampletemanngoding.model.JointEvents;
-import com.dicoding.sampletemanngoding.model.LineEventsModel;
-import com.dicoding.sampletemanngoding.service.BotService;
-import com.dicoding.sampletemanngoding.service.BotTemplate;
-import com.dicoding.sampletemanngoding.service.DBService;
+import com.dicoding.TemanNgoding.model.Datum;
+import com.dicoding.TemanNgoding.model.DicodingEvents;
+import com.dicoding.TemanNgoding.model.JointEvents;
+import com.dicoding.TemanNgoding.model.LineEventsModel;
+import com.dicoding.TemanNgoding.service.BotService;
+import com.dicoding.TemanNgoding.service.BotTemplate;
+import com.dicoding.TemanNgoding.service.DBService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.linecorp.bot.client.LineSignatureValidator;
 import com.linecorp.bot.model.event.FollowEvent;
@@ -51,6 +51,7 @@ import java.util.stream.Collectors;
 
 @RestController
 public class LineBotController {
+
     @Autowired
     @Qualifier("lineSignatureValidator")
     private LineSignatureValidator lineSignatureValidator;

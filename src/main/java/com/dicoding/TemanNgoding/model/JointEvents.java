@@ -1,6 +1,7 @@
-package com.dicoding.sampletemanngoding.model;
+package com.dicoding.TemanNgoding.model;
 
-public class JointEvents {
+public class JointEvents
+{
     public Long id;
 
     public String event_id;

@@ -1,6 +1,7 @@
-package com.dicoding.sampletemanngoding.service;
+package com.dicoding.TemanNgoding.service;
 
-import com.dicoding.sampletemanngoding.model.DicodingEvents;
+import com.dicoding.TemanNgoding.model.DicodingEvents;
+import com.dicoding.TemanNgoding.model.DicodingEvents;
 import com.linecorp.bot.model.action.MessageAction;
 import com.linecorp.bot.model.action.URIAction;
 import com.linecorp.bot.model.event.source.GroupSource;
