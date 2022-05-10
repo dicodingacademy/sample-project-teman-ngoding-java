@@ -1,7 +1,6 @@
 package com.dicoding.TemanNgoding.model;
 
-public class JointEvents
-{
+public class JointEvents {
     public Long id;
 
     public String event_id;
@@ -10,8 +9,7 @@ public class JointEvents
     public String line_id;
     public String display_name;
 
-    public JointEvents(Long aId, String aEventId, String aUserId, String aLineId, String aDisplayName)
-    {
+    public JointEvents(Long aId, String aEventId, String aUserId, String aLineId, String aDisplayName) {
         id = aId;
         event_id = aEventId;
         user_id = aUserId;
@@ -19,8 +17,7 @@ public class JointEvents
         display_name = aDisplayName;
     }
 
-    public JointEvents()
-    {
+    public JointEvents() {
 
     }
 }
