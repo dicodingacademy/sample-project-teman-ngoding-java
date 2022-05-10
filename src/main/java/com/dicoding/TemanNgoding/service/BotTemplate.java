@@ -1,7 +1,6 @@
 package com.dicoding.TemanNgoding.service;
 
 import com.dicoding.TemanNgoding.model.DicodingEvents;
-import com.dicoding.TemanNgoding.model.DicodingEvents;
 import com.linecorp.bot.model.action.MessageAction;
 import com.linecorp.bot.model.action.URIAction;
 import com.linecorp.bot.model.event.source.GroupSource;
@@ -16,9 +15,9 @@ import com.linecorp.bot.model.profile.UserProfileResponse;
 import org.apache.commons.text.StringEscapeUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Entities;
 import org.springframework.stereotype.Service;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -38,14 +37,14 @@ public class BotTemplate {
     }
 
     public TemplateMessage greetingMessage(Source source, UserProfileResponse sender) {
-        String message  = "Hi %s! Ayo ikut dicoding event, aku bisa cariin kamu teman.";
-        String action   = "Lihat daftar event";
+        String message = "Hi %s! Ayo ikut dicoding event, aku bisa cariin kamu teman.";
+        String action = "Lihat daftar event";
 
         if (source instanceof GroupSource) {
             message = String.format(message, "Group");
         } else if (source instanceof RoomSource) {
             message = String.format(message, "Room");
-        } else if(source instanceof UserSource) {
+        } else if (source instanceof UserSource) {
             message = String.format(message, sender.getDisplayName());
         } else {
             message = "Unknown Message Source!";
@@ -55,22 +54,21 @@ public class BotTemplate {
     }
 
     public TemplateMessage carouselEvents(DicodingEvents dicodingEvents) {
-        int i;
         String image, owner, name, id, link;
         CarouselColumn column;
         List<CarouselColumn> carouselColumn = new ArrayList<>();
-        for (i = 0; i < dicodingEvents.getData().size(); i++){
+        for (int i = 0; i < dicodingEvents.getData().size(); i++) {
             image = dicodingEvents.getData().get(i).getImagePath();
             owner = dicodingEvents.getData().get(i).getOwnerDisplayName();
             name = dicodingEvents.getData().get(i).getName();
             id = String.valueOf(dicodingEvents.getData().get(i).getId());
             link = dicodingEvents.getData().get(i).getLink();
 
-            column = new CarouselColumn(image, name.substring(0, (name.length() < 40)?name.length():40), owner,
+            column = new CarouselColumn(URI.create(image), name.substring(0, Math.min(name.length(), 40)), owner,
                     Arrays.asList(
-                            new MessageAction("Summary", "["+String.valueOf(i+1)+"]"+" Summary : " + name),
-                            new URIAction("View Page", link),
-                            new MessageAction("Join Event", "join event #"+id)
+                            new MessageAction("Summary", "[" + (i + 1) + "]" + " Summary : " + name),
+                            new URIAction("View Page", URI.create(link), new URIAction.AltUri(URI.create(link))),
+                            new MessageAction("Join Event", "join event #" + id)
                     )
             );
 
@@ -82,7 +80,7 @@ public class BotTemplate {
     }
 
     public String escape(String text) {
-        return  StringEscapeUtils.escapeJson(text.trim());
+        return StringEscapeUtils.escapeJson(text.trim());
     }
 
     public String br2nl(String html) {
