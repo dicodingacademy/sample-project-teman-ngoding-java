@@ -8,9 +8,9 @@ import com.linecorp.bot.model.message.Message;
 import com.linecorp.bot.model.message.TextMessage;
 import com.linecorp.bot.model.profile.UserProfileResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
 public class BotService {
 
     @Autowired
+    @Qualifier("lineMessagingClient")
     private LineMessagingClient lineMessagingClient;
 
     public void push(PushMessage pushMessage) {
@@ -58,12 +59,12 @@ public class BotService {
         reply(replyMessage);
     }
 
-    public void replyText(String replyToken, String messageText){
+    public void replyText(String replyToken, String messageText) {
         TextMessage textMessage = new TextMessage(messageText);
         reply(replyToken, textMessage);
     }
 
-    public void replyText(String replyToken, String[] messageTexts){
+    public void replyText(String replyToken, String[] messageTexts) {
         List<Message> textMessages = Arrays
                 .stream(messageTexts)
                 .map(TextMessage::new)
@@ -71,7 +72,7 @@ public class BotService {
         reply(replyToken, textMessages);
     }
 
-    public UserProfileResponse getProfile(String userId){
+    public UserProfileResponse getProfile(String userId) {
         try {
             return lineMessagingClient.getProfile(userId).get();
         } catch (InterruptedException | ExecutionException e) {

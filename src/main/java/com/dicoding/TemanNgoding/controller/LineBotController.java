@@ -8,7 +8,6 @@ import com.dicoding.TemanNgoding.service.BotService;
 import com.dicoding.TemanNgoding.service.BotTemplate;
 import com.dicoding.TemanNgoding.service.DBService;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.linecorp.bot.client.LineSignatureValidator;
 import com.linecorp.bot.model.event.FollowEvent;
 import com.linecorp.bot.model.event.JoinEvent;
 import com.linecorp.bot.model.event.MessageEvent;
@@ -26,6 +25,7 @@ import com.linecorp.bot.model.message.TextMessage;
 import com.linecorp.bot.model.message.flex.container.FlexContainer;
 import com.linecorp.bot.model.objectmapper.ModelObjectMapper;
 import com.linecorp.bot.model.profile.UserProfileResponse;
+import com.linecorp.bot.parser.LineSignatureValidator;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpResponse;
@@ -41,10 +41,7 @@ import org.springframework.web.bind.annotation.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
@@ -68,11 +65,8 @@ public class LineBotController {
     private UserProfileResponse sender = null;
     private DicodingEvents dicodingEvents = null;
 
-    @RequestMapping(value="/webhook", method= RequestMethod.POST)
-    public ResponseEntity<String> callback(
-            @RequestHeader("X-Line-Signature") String xLineSignature,
-            @RequestBody String eventsPayload)
-    {
+    @RequestMapping(value = "/webhook", method = RequestMethod.POST)
+    public ResponseEntity<String> callback(@RequestHeader("x-line-signature") String xLineSignature, @RequestBody String eventsPayload) {
         try {
             // validasi line signature. matikan validasi ini jika masih dalam pengembangan
             if (!lineSignatureValidator.validateSignature(eventsPayload.getBytes(), xLineSignature)) {
@@ -83,7 +77,7 @@ public class LineBotController {
             ObjectMapper objectMapper = ModelObjectMapper.createNewObjectMapper();
             LineEventsModel eventsModel = objectMapper.readValue(eventsPayload, LineEventsModel.class);
 
-            eventsModel.getEvents().forEach((event)->{
+            eventsModel.getEvents().forEach((event) -> {
                 if (event instanceof JoinEvent || event instanceof FollowEvent) {
                     String replyToken = ((ReplyEvent) event).getReplyToken();
                     handleJointOrFollowEvent(replyToken, event.getSource());
@@ -99,9 +93,9 @@ public class LineBotController {
     }
 
     private void greetingMessage(String replyToken, Source source, String additionalMessage) {
-        if(sender == null) {
+        if (sender == null) {
             String senderId = source.getSenderId();
-            sender          = botService.getProfile(senderId);
+            sender = botService.getProfile(senderId);
         }
 
         TemplateMessage greetingMessage = botTemplate.greetingMessage(source, sender);
@@ -121,13 +115,13 @@ public class LineBotController {
     }
 
     private void handleMessageEvent(MessageEvent event) {
-        String replyToken      = event.getReplyToken();
+        String replyToken = event.getReplyToken();
         MessageContent content = event.getMessage();
-        Source source          = event.getSource();
-        String senderId        = source.getSenderId();
-        sender                 = botService.getProfile(senderId);
+        Source source = event.getSource();
+        String senderId = source.getSenderId();
+        sender = botService.getProfile(senderId);
 
-        if(content instanceof TextMessageContent) {
+        if (content instanceof TextMessageContent) {
             handleTextMessage(replyToken, (TextMessageContent) content, source);
         } else {
             greetingMessage(replyToken, source, null);
@@ -136,76 +130,64 @@ public class LineBotController {
 
     private void handleTextMessage(String replyToken, TextMessageContent content, Source source) {
         if (source instanceof GroupSource) {
-            handleGroupChats(replyToken, content.getText(), ((GroupSource) source).getGroupId());
+            handleGroupChats(replyToken, content.getText(), source);
         } else if (source instanceof RoomSource) {
-            handleRoomChats(replyToken, content.getText(), ((RoomSource) source).getRoomId());
-        } else if(source instanceof UserSource) {
-            handleOneOnOneChats(replyToken, content.getText());
+            handleRoomChats(replyToken, content.getText(), source);
+        } else if (source instanceof UserSource) {
+            handleOneOnOneChats(replyToken, content.getText(), source);
         } else {
-            botService.replyText(replyToken,"Unknown Message Source!");
+            botService.replyText(replyToken, "Unknown Message Source!");
         }
     }
 
-    private void handleGroupChats(String replyToken, String textMessage, String groupId) {
+    private void handleGroupChats(String replyToken, String textMessage, Source source) {
         String msgText = textMessage.toLowerCase();
         if (msgText.contains("bot leave")) {
             if (sender == null) {
                 botService.replyText(replyToken, "Hi, tambahkan dulu bot Dicoding Event sebagai teman!");
             } else {
-                botService.leaveGroup(groupId);
+                botService.leaveGroup(((GroupSource) source).getGroupId());
             }
-        } else if (msgText.contains("id")
-                || msgText.contains("find")
-                || msgText.contains("join")
-                || msgText.contains("teman")
-        ) {
+        } else if (msgText.contains("id") || msgText.contains("find") || msgText.contains("join") || msgText.contains("teman")) {
             processText(replyToken, textMessage);
         } else if (msgText.contains("lihat daftar event")) {
             showCarouselEvents(replyToken);
         } else if (msgText.contains("summary")) {
             showEventSummary(replyToken, textMessage);
         } else {
-            handleFallbackMessage(replyToken, new GroupSource(groupId, sender.getUserId()));
+            handleFallbackMessage(replyToken, source);
         }
     }
 
-    private void handleRoomChats(String replyToken, String textMessage, String roomId) {
+    private void handleRoomChats(String replyToken, String textMessage, Source source) {
         String msgText = textMessage.toLowerCase();
         if (msgText.contains("bot leave")) {
             if (sender == null) {
                 botService.replyText(replyToken, "Hi, tambahkan dulu bot Dicoding Event sebagai teman!");
             } else {
-                botService.leaveRoom(roomId);
+                botService.leaveRoom(((RoomSource) source).getRoomId());
             }
-        } else if (msgText.contains("id")
-                || msgText.contains("find")
-                || msgText.contains("join")
-                || msgText.contains("teman")
-        ) {
+        } else if (msgText.contains("id") || msgText.contains("find") || msgText.contains("join") || msgText.contains("teman")) {
             processText(replyToken, msgText);
         } else if (msgText.contains("lihat daftar event")) {
             showCarouselEvents(replyToken);
         } else if (msgText.contains("summary")) {
             showEventSummary(replyToken, textMessage);
         } else {
-            handleFallbackMessage(replyToken, new RoomSource(roomId, sender.getUserId()));
+            handleFallbackMessage(replyToken, source);
         }
     }
 
-    private void handleOneOnOneChats(String replyToken, String textMessage) {
+    private void handleOneOnOneChats(String replyToken, String textMessage, Source source) {
         String msgText = textMessage.toLowerCase();
-        if (msgText.contains("id")
-                || msgText.contains("find")
-                || msgText.contains("join")
-                || msgText.contains("teman")
-        ) {
+        if (msgText.contains("id") || msgText.contains("find") || msgText.contains("join") || msgText.contains("teman")) {
             processText(replyToken, msgText);
         } else if (msgText.contains("lihat daftar event")) {
             showCarouselEvents(replyToken);
         } else if (msgText.contains("summary")) {
             showEventSummary(replyToken, textMessage);
         } else {
-            handleFallbackMessage(replyToken, new UserSource(sender.getUserId()));
+            handleFallbackMessage(replyToken, source);
         }
     }
 
@@ -215,9 +197,9 @@ public class LineBotController {
 
     private void processText(String replyToken, String messageText) {
         String[] words = messageText.trim().split("\\s+");
-        String intent  = words[0];
+        String intent = words[0];
 
-        if(intent.equalsIgnoreCase("id")) {
+        if (intent.equalsIgnoreCase("id")) {
             handleRegisteringUser(replyToken, words);
         } else if (intent.equalsIgnoreCase("join")) {
             handleJoinDicodingEvent(replyToken, words);
@@ -227,14 +209,13 @@ public class LineBotController {
     }
 
     private void handleRegisteringUser(String replyToken, String[] words) {
-        String registerMessage = null;
-        String target=words.length > 1 ? words[1] : "";
+        String target = words.length > 1 ? words[1] : "";
 
-        if (target.length()<=3){
-            registerMessage = "Need more than 3 character to find user";
+        if (target.length() <= 3) {
+            userNotFoundFallback(replyToken, "Need more than 3 character to find user");
         } else {
             String lineId = target.substring(target.indexOf("@") + 1);
-            if(sender != null) {
+            if (sender != null) {
                 if (!sender.getDisplayName().isEmpty() && (lineId.length() > 0)) {
                     if (dbService.regLineID(sender.getUserId(), lineId, sender.getDisplayName()) != 0) {
                         showCarouselEvents(replyToken, "Pendaftaran user berhasil. Berikut daftar event yang bisa kamu ikuti:");
@@ -251,30 +232,22 @@ public class LineBotController {
     }
 
     private void handleJoinDicodingEvent(String replyToken, String[] words) {
-        String target       = words.length > 2 ? words[2] : "";
-        String eventId      = target.substring(target.indexOf("#") + 1);
-        String senderId     = sender.getUserId();
-        String senderName   = sender.getDisplayName();
-        String lineId       = dbService.findUser(senderId);
+        String target = words.length > 2 ? words[2] : "";
+        String eventId = target.substring(target.indexOf("#") + 1);
+        String senderId = sender.getUserId();
+        String senderName = sender.getDisplayName();
+        String lineId = dbService.findUser(senderId);
 
         int joinStatus = dbService.joinEvent(eventId, senderId, lineId, senderName);
 
         if (joinStatus == -1) {
-            TemplateMessage buttonsTemplate = botTemplate.createButton(
-                    "Kamu sudah bergabung di event ini",
-                    "Lihat Teman",
-                    "teman #" + eventId
-            );
+            TemplateMessage buttonsTemplate = botTemplate.createButton("Kamu sudah bergabung di event ini", "Lihat Teman", "teman #" + eventId);
             botService.reply(replyToken, buttonsTemplate);
             return;
         }
 
         if (joinStatus == 1) {
-            TemplateMessage buttonsTemplate = botTemplate.createButton(
-                    "Pendaftaran event berhasil! Berikut teman yang menemani kamu",
-                    "Lihat Teman",
-                    "teman #" + eventId
-            );
+            TemplateMessage buttonsTemplate = botTemplate.createButton("Pendaftaran event berhasil! Berikut teman yang menemani kamu", "Lihat Teman", "teman #" + eventId);
             botService.reply(replyToken, buttonsTemplate);
             broadcastNewFriendJoined(eventId, senderId);
             return;
@@ -284,21 +257,15 @@ public class LineBotController {
     }
 
     private void handleShowFriend(String replyToken, String[] words) {
-        String target       = StringUtils.join(words, " ");
-        String eventId      = target.substring(target.indexOf("#") + 1).trim();
+        String target = StringUtils.join(words, " ");
+        String eventId = target.substring(target.indexOf("#") + 1).trim();
 
         List<JointEvents> jointEvents = dbService.getJoinedEvent(eventId);
 
         if (jointEvents.size() > 0) {
-            List<String> friendList = jointEvents.stream()
-                    .map((jointEvent) -> String.format(
-                            "Display Name: %s\nLINE ID: %s\n",
-                            jointEvent.display_name,
-                            "http://line.me/ti/p/~" + jointEvent.line_id
-                    ))
-                    .collect(Collectors.toList());
+            List<String> friendList = jointEvents.stream().map((jointEvent) -> String.format("Display Name: %s\nLINE ID: %s\n", jointEvent.display_name, "http://line.me/ti/p/~" + jointEvent.line_id)).collect(Collectors.toList());
 
-            String replyText  = "Daftar teman di event #" + eventId + ":\n\n";
+            String replyText = "Daftar teman di event #" + eventId + ":\n\n";
             replyText += StringUtils.join(friendList, "\n\n");
 
             botService.replyText(replyToken, replyText);
@@ -314,12 +281,11 @@ public class LineBotController {
     private void userNotFoundFallback(String replyToken, String additionalInfo) {
         List<String> messages = new ArrayList<String>();
 
-        if(additionalInfo != null) messages.add(additionalInfo);
-        messages.add("Aku akan mencarikan event aktif di dicoding! Tapi, kasih tahu dulu LINE ID kamu (pake \'id @\' ya)");
+        if (additionalInfo != null) messages.add(additionalInfo);
+        messages.add("Aku akan mencarikan event aktif di dicoding! Tapi, kasih tahu dulu LINE ID kamu (pake 'id @' ya)");
         messages.add("Contoh: id @dicoding");
 
         botService.replyText(replyToken, messages.toArray(new String[messages.size()]));
-        return;
     }
 
     private void showCarouselEvents(String replyToken) {
@@ -327,13 +293,14 @@ public class LineBotController {
     }
 
     private void showCarouselEvents(String replyToken, String additionalInfo) {
-        String userFound = dbService.findUser(sender.getUserId());
+        String aUserId = sender.getUserId();
+        String userFound = dbService.findUser(aUserId);
 
-        if(userFound == null) {
+        if (userFound == null) {
             userNotFoundFallback(replyToken);
         }
 
-        if((dicodingEvents == null) || (dicodingEvents.getData().size() < 1)){
+        if ((dicodingEvents == null) || (dicodingEvents.getData().size() < 1)) {
             getDicodingEventsData();
         }
 
@@ -353,7 +320,7 @@ public class LineBotController {
     private void getDicodingEventsData() {
         // Act as client with GET method
         String URI = "https://www.dicoding.com/public/api/events?limit=10&active=-1";
-        System.out.println("URI: " +  URI);
+        System.out.println("URI: " + URI);
 
         try (CloseableHttpAsyncClient client = HttpAsyncClients.createDefault()) {
             client.start();
@@ -384,12 +351,9 @@ public class LineBotController {
         List<String> listIds;
         List<JointEvents> jointEvents = dbService.getJoinedEvent(eventId);
 
-        listIds = jointEvents.stream()
-                .filter(jointEvent -> !jointEvent.user_id.equals(newFriendId))
-                .map((jointEvent) -> jointEvent.user_id)
-                .collect(Collectors.toList());
+        listIds = jointEvents.stream().filter(jointEvent -> !jointEvent.user_id.equals(newFriendId)).map((jointEvent) -> jointEvent.user_id).collect(Collectors.toList());
 
-        Set<String> stringSet = new HashSet<String>(listIds);
+        Set<String> stringSet = new HashSet<>(listIds);
         String msg = "Hi, ada teman baru telah bergabung di event " + eventId;
         TemplateMessage buttonsTemplate = botTemplate.createButton(msg, "Lihat Teman", "teman #" + eventId);
         botService.multicast(stringSet, buttonsTemplate);
@@ -405,22 +369,10 @@ public class LineBotController {
             Datum eventData = dicodingEvents.getData().get(eventIndex);
 
             ClassLoader classLoader = getClass().getClassLoader();
-            String encoding         = StandardCharsets.UTF_8.name();
-            String flexTemplate     = IOUtils.toString(classLoader.getResourceAsStream("flex_event.json"), encoding);
+            String encoding = StandardCharsets.UTF_8.name();
+            String flexTemplate = IOUtils.toString(Objects.requireNonNull(classLoader.getResourceAsStream("flex_event.json")), encoding);
 
-            flexTemplate = String.format(flexTemplate,
-                    botTemplate.escape(eventData.getImagePath()),
-                    botTemplate.escape(eventData.getName()),
-                    botTemplate.escape(eventData.getOwnerName()),
-                    botTemplate.br2nl(eventData.getDescription()),
-                    eventData.getQuota(),
-                    botTemplate.escape(eventData.getBeginTime()),
-                    botTemplate.escape(eventData.getEndTime()),
-                    botTemplate.escape(eventData.getCityName()),
-                    botTemplate.br2nl(eventData.getAddress()),
-                    botTemplate.escape(eventData.getLink()),
-                    eventData.getId()
-            );
+            flexTemplate = String.format(flexTemplate, botTemplate.escape(eventData.getImagePath()), botTemplate.escape(eventData.getName()), botTemplate.escape(eventData.getOwnerName()), botTemplate.br2nl(eventData.getDescription()), eventData.getQuota(), botTemplate.escape(eventData.getBeginTime()), botTemplate.escape(eventData.getEndTime()), botTemplate.escape(eventData.getCityName()), botTemplate.br2nl(eventData.getAddress()), botTemplate.escape(eventData.getLink()), eventData.getId());
 
             ObjectMapper objectMapper = ModelObjectMapper.createNewObjectMapper();
             FlexContainer flexContainer = objectMapper.readValue(flexTemplate, FlexContainer.class);

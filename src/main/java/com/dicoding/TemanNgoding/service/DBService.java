@@ -1,6 +1,5 @@
 package com.dicoding.TemanNgoding.service;
 
-import com.dicoding.TemanNgoding.model.JointEvents;
 import com.dicoding.TemanNgoding.database.Dao;
 import com.dicoding.TemanNgoding.model.JointEvents;
 import com.dicoding.TemanNgoding.model.User;
@@ -16,9 +15,8 @@ public class DBService {
     private Dao mDao;
 
     //method mendaftarkan LINE ID
-    public int regLineID(String aUserId, String aLineId, String aDisplayName){
-        if(findUser(aUserId) == null)
-        {
+    public int regLineID(String aUserId, String aLineId, String aDisplayName) {
+        if (findUser(aUserId) == null) {
             return mDao.registerLineId(aUserId, aLineId, aDisplayName);
         }
 
@@ -26,11 +24,10 @@ public class DBService {
     }
 
     //method untuk mencari user terdaftar di database
-    public String findUser(String aUserId){
-        List<User> self=mDao.getByUserId("%"+aUserId+"%");
+    public String findUser(String aUserId) {
+        List<User> self = mDao.getByUserId(aUserId);
 
-        if(self.size() > 0)
-        {
+        if (self.size() > 0) {
             return self.get(0).line_id;
         }
 
@@ -38,10 +35,10 @@ public class DBService {
     }
 
     //method untuk bergabung dalam event
-    public int joinEvent(String eventID, String userId, String lineID, String displayname){
+    public int joinEvent(String eventID, String userId, String lineID, String displayname) {
         JointEvents joinedEvent = isUserJoinedEvent(eventID, userId);
 
-        if(joinedEvent == null) {
+        if (joinedEvent == null) {
             return mDao.joinEvent(eventID, userId, lineID, displayname);
         }
 
@@ -49,7 +46,7 @@ public class DBService {
     }
 
     //method untuk cek apakah sudah join event
-    private JointEvents isUserJoinedEvent(String eventID, String userID){
+    private JointEvents isUserJoinedEvent(String eventID, String userID) {
         List<JointEvents> result = mDao.getByJoin(eventID, userID);
 
         if (result.size() > 0) {
@@ -60,7 +57,7 @@ public class DBService {
     }
 
     //method untuk melihat teman terdaftar di dalam suatu event
-    public List<JointEvents> getJoinedEvent(String eventID){
+    public List<JointEvents> getJoinedEvent(String eventID) {
         return mDao.getByEventId(eventID);
     }
 }
